@@ -1,0 +1,30 @@
+name: Moodle課題チェック
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # 毎時チェック（通知する時間は config.json で決める）
+  workflow_dispatch:       # 手動実行ボタン（押すと時間の設定を無視してすぐ通知）
+    inputs:
+      days:
+        description: "テスト用：全授業この日数で見る（空なら config.json の設定）"
+        default: ""
+
+jobs:
+  check:
+    # 配布元（テンプレート）では動かさず、各自のコピーでだけ動かす
+    if: github.repository != 'sou-0828/moodle-deadline-notifier'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - run: python check_assignments.py
+        env:
+          MOODLE_USERNAME: ${{ secrets.MOODLE_USERNAME }}
+          MOODLE_PASSWORD: ${{ secrets.MOODLE_PASSWORD }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          MOODLE_URL: ${{ secrets.MOODLE_URL }}
+          FORCE_ALL: ${{ github.event_name == 'workflow_dispatch' }}
+          DAYS_AHEAD: ${{ inputs.days }}
