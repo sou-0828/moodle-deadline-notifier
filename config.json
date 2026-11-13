@@ -1,0 +1,7 @@
+{
+  "moodle_url": "https://moodle.example.ac.jp",
+  "default_days": 3,
+  "default_hours": [9, 21],
+  "courses": {
+  }
+}
